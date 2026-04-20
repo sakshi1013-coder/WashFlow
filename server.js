@@ -9,7 +9,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Database Setup
-const db = new Database('laundry.db');
+const isVercel = process.env.VERCEL;
+const dbPath = isVercel ? '/tmp/laundry.db' : path.join(__dirname, 'laundry.db');
+const db = new Database(dbPath);
 
 // Initialize Tables
 db.exec(`
@@ -210,6 +212,10 @@ app.get('/api/dashboard', isAuthenticated, (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
